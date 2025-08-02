@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infrangible\BundleOption\Plugin\Bundle\Model\Product;
 
+use Infrangible\BundleOption\Plugin\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions;
 use Magento\Catalog\Model\Product;
 
 /**
@@ -44,11 +45,13 @@ class Type
 
                                     $productOption = $product->getOptionById($optionId);
 
-                                    $bundleOptionIds = $productOption->getData('bundle_option_ids');
+                                    $productOptionBundleOptionIds =
+                                        $productOption->getData(CustomOptions::FIELD_BUNDLE_OPTION_IDS_NAME);
 
-                                    if ($bundleOptionIds) {
-                                        foreach ($bundleOptionIds as $bundleOptionId) {
-                                            $bundleOptionIds[ $bundleOptionId ][ $optionId ] = $optionValue;
+                                    if ($productOptionBundleOptionIds) {
+                                        foreach ($productOptionBundleOptionIds as $productOptionBundleOptionId) {
+                                            $bundleOptionIds[ $productOptionBundleOptionId ][ $optionId ] =
+                                                $optionValue;
                                         }
                                     }
                                 }

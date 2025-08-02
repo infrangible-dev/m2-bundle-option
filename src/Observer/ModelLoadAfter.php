@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infrangible\BundleOption\Observer;
 
+use Infrangible\BundleOption\Plugin\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions;
 use Magento\Catalog\Model\Product\Option;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -20,11 +21,11 @@ class ModelLoadAfter implements ObserverInterface
         $object = $observer->getData('object');
 
         if ($object instanceof Option) {
-            $bundleOptionIds = $object->getData('bundle_option_ids');
+            $bundleOptionIds = $object->getData(CustomOptions::FIELD_BUNDLE_OPTION_IDS_NAME);
 
             if (! is_array($bundleOptionIds)) {
                 $object->setData(
-                    'bundle_option_ids',
+                    CustomOptions::FIELD_BUNDLE_OPTION_IDS_NAME,
                     explode(
                         ',',
                         $bundleOptionIds

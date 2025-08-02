@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infrangible\BundleOption\Setup;
 
+use Infrangible\BundleOption\Plugin\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
@@ -29,11 +30,11 @@ class InstallSchema implements InstallSchemaInterface
 
         if (! $connection->tableColumnExists(
             $optionTableName,
-            'bundle_option_ids'
+            CustomOptions::FIELD_BUNDLE_OPTION_IDS_NAME
         )) {
             $connection->addColumn(
                 $optionTableName,
-                'bundle_option_ids',
+                CustomOptions::FIELD_BUNDLE_OPTION_IDS_NAME,
                 ['type' => Table::TYPE_TEXT, 'length' => 255, 'nullable' => true, 'comment' => 'Bundle Option Ids']
             );
         }
