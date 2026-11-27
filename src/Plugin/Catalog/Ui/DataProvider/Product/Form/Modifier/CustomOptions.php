@@ -2,65 +2,74 @@
 
 declare(strict_types=1);
 
+/**
+ * @author      Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2026 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
 namespace Infrangible\BundleOption\Plugin\Catalog\Ui\DataProvider\Product\Form\Modifier;
 
 use FeWeDev\Base\Arrays;
+use Infrangible\BundleOption\Helper\Data;
 use Magento\Bundle\Model\Option;
-use Magento\Bundle\Model\Product\Type;
+use Magento\Bundle\Model\Product\Type as BundleType;
 use Magento\Catalog\Model\Locator\LocatorInterface;
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions as CustomOptionsModifier;
 use Magento\Ui\Component\Form\Element\DataType\Text;
 use Magento\Ui\Component\Form\Element\Select;
 use Magento\Ui\Component\Form\Field;
 
 /**
- * @author      Andreas Knollmann
- * @copyright   2014-2025 Softwareentwicklung Andreas Knollmann
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ * Adds the field "Bundle Options" to the custom options of bundle products in the product form of the admin.
  */
 class CustomOptions
 {
-    public const FIELD_BUNDLE_OPTION_IDS_NAME = 'bundle_option_ids';
+    /** Sort order of the field among the common fields of custom options. */
+    public const SORT_ORDER = 210;
 
-    /** @var Arrays */
-    protected $arrays;
-
-    /** @var LocatorInterface */
-    protected $locator;
-
-    public function __construct(Arrays $arrays, LocatorInterface $locator)
+    /**
+     * @param Arrays $arrays
+     * @param LocatorInterface $locator
+     */
+    public function __construct(protected Arrays $arrays, protected LocatorInterface $locator)
     {
-        $this->arrays = $arrays;
-        $this->locator = $locator;
     }
 
     /**
-     * @noinspection PhpUnusedParameterInspection
+     * Adds the field "Bundle Options" with the bundle options of the product to the custom options.
+     *
+     * Only saved bundle products with bundle options get the field.
+     *
+     * @param CustomOptionsModifier $subject
+     * @param array $meta
+     * @phpstan-param array<int|string, mixed> $meta
+     *
+     * @return array
+     * @phpstan-return array<int|string, mixed>
+     *
+     * @noinspection PhpUnusedParameterInspection the signature of the plugin is given
      */
-    public function afterModifyMeta(
-        \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions $subject,
-        array $meta
-    ): array {
-        /** @var Product $product */
+    public function afterModifyMeta(CustomOptionsModifier $subject, array $meta): array
+    {
         $product = $this->locator->getProduct();
 
-        if (! $product->getId()) {
+        if (! $product instanceof Product || ! $product->getId()) {
+            return $meta;
+        }
+
+        $typeInstance = $product->getTypeInstance();
+
+        if (! $typeInstance instanceof BundleType) {
             return $meta;
         }
 
         $bundleOptions = [];
 
-        $typeInstance = $product->getTypeInstance();
-
-        if ($typeInstance instanceof Type) {
-            $options = $typeInstance->getOptionsCollection($product);
-
-            /** @var Option $option */
-            foreach ($options as $option) {
-                $bundleOptions[] = [
-                    'value' => $option->getId(),
-                    'label' => $option->getTitle()
-                ];
+        foreach ($typeInstance->getOptionsCollection($product) as $option) {
+            if ($option instanceof Option) {
+                $bundleOptions[] = ['value' => $option->getId(), 'label' => $option->getTitle()];
             }
         }
 
@@ -71,33 +80,33 @@ class CustomOptions
         return $this->arrays->addDeepValue(
             $meta,
             [
-                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::GROUP_CUSTOM_OPTIONS_NAME,
+                CustomOptionsModifier::GROUP_CUSTOM_OPTIONS_NAME,
                 'children',
-                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::GRID_OPTIONS_NAME,
+                CustomOptionsModifier::GRID_OPTIONS_NAME,
                 'children',
                 'record',
                 'children',
-                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::CONTAINER_OPTION,
+                CustomOptionsModifier::CONTAINER_OPTION,
                 'children',
-                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::CONTAINER_COMMON_NAME,
+                CustomOptionsModifier::CONTAINER_COMMON_NAME,
                 'children',
-                static::FIELD_BUNDLE_OPTION_IDS_NAME
+                Data::BUNDLE_OPTION_IDS
             ],
-            $this->getBundleOptionIdsFieldConfig(
-                static::FIELD_BUNDLE_OPTION_IDS_NAME,
-                __('Bundle Options')->render(),
-                $bundleOptions,
-                210
-            )
+            $this->getFieldConfig($bundleOptions)
         );
     }
 
-    protected function getBundleOptionIdsFieldConfig(
-        string $scopeName,
-        string $label,
-        array $productOptions,
-        int $sortOrder
-    ): array {
+    /**
+     * Returns the configuration of the field: a multiple select of the bundle options.
+     *
+     * @param array $bundleOptions
+     * @phpstan-param list<array{value: mixed, label: mixed}> $bundleOptions
+     *
+     * @return array
+     * @phpstan-return array<string, mixed>
+     */
+    private function getFieldConfig(array $bundleOptions): array
+    {
         return [
             'arguments' => [
                 'data' => [
@@ -112,10 +121,10 @@ class CustomOptions
                         'multiple'         => true,
                         'showCheckbox'     => true,
                         'levelsVisibility' => 1,
-                        'dataScope'        => $scopeName,
-                        'label'            => $label,
-                        'options'          => $productOptions,
-                        'sortOrder'        => $sortOrder
+                        'dataScope'        => Data::BUNDLE_OPTION_IDS,
+                        'label'            => __('Bundle Options')->render(),
+                        'options'          => $bundleOptions,
+                        'sortOrder'        => self::SORT_ORDER
                     ]
                 ]
             ]

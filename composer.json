@@ -2,7 +2,7 @@
     "name": "infrangible/m2-bundle-option",
     "description": "Lets you link custom options of a bundle product to individual bundle options, so the shopper's choice is attached to the item selected in that bundle option.",
     "type": "magento2-module",
-    "version": "1.0.2",
+    "version": "2.0.0",
     "license": "MIT",
     "keywords": [
         "Magento",
@@ -14,7 +14,7 @@
         "bundle custom options",
         "link custom options to bundle items"
     ],
-    "homepage": "https://github.com/infrangible-dev/m2-bundle-option",
+    "homepage": "https://www.infrangible.dev/modules/bundle-option",
     "authors": [
         {
             "name": "Andreas Knollmann",
@@ -24,10 +24,15 @@
         }
     ],
     "require": {
-        "php": ">=7.1",
-        "magento/framework": "~102.0.0|~103.0.0",
-        "infrangible/m2-core": "~3.14.1||~4.0.1",
-        "infrangible/m2-foundation": "~2.2.0"
+        "php": ">=8.1",
+        "fewedev/base": "~2.4.3",
+        "infrangible/m2-core": "~5.0.6",
+        "infrangible/m2-foundation": "~3.0.2",
+        "magento/framework": "~103.0.6",
+        "magento/module-bundle": "~101.0.0",
+        "magento/module-catalog": "~104.0.0",
+        "magento/module-sales": "~103.0.0",
+        "magento/module-ui": "~101.2.0"
     },
     "autoload": {
         "files": [
@@ -36,5 +41,8 @@
         "psr-4": {
             "Infrangible\\BundleOption\\": "src"
         }
+    },
+    "require-dev": {
+        "infrangible/phpstan-magento": "~1.2.0"
     }
 }

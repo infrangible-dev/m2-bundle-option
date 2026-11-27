@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!--
+ * @author      Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2026 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="catalog_product_option">
+        <column xsi:type="varchar" name="bundle_option_ids" length="255" nullable="true" comment="Bundle Option Ids"/>
+    </table>
+</schema>

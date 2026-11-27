@@ -1,51 +1,64 @@
-<?php /** @noinspection PhpDeprecationInspection */
+<?php
 
 declare(strict_types=1);
 
+/**
+ * @author      Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2026 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
 namespace Infrangible\BundleOption\Observer;
 
-use Infrangible\BundleOption\Plugin\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions;
+use Infrangible\BundleOption\Helper\Data;
 use Magento\Catalog\Model\Product\Option;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
- * @author      Andreas Knollmann
- * @copyright   2014-2025 Softwareentwicklung Andreas Knollmann
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ * Validates the bundle options of a saved custom option and stores them as comma-separated list.
  */
 class ModelSaveBefore implements ObserverInterface
 {
     /**
-     * @throws \Exception
+     * @param Data $helper
+     */
+    public function __construct(protected Data $helper)
+    {
+    }
+
+    /**
+     * Validates the bundle options of the saved custom option and stores them as comma-separated list.
+     *
+     * Without bundle options the field is null.
+     *
+     * @param Observer $observer
+     *
+     * @return void
+     * @throws LocalizedException
      */
     public function execute(Observer $observer): void
     {
-        $object = $observer->getData('object');
+        $option = $observer->getData('object');
 
-        if ($object instanceof Option) {
-            $bundleOptionIds = $object->getData(CustomOptions::FIELD_BUNDLE_OPTION_IDS_NAME);
+        if (! $option instanceof Option || ! $option->hasData(Data::BUNDLE_OPTION_IDS)) {
+            return;
+        }
 
-            if (is_array($bundleOptionIds)) {
-                foreach ($bundleOptionIds as $productId) {
-                    if (! is_numeric($productId)) {
-                        throw new \Exception(
-                            sprintf(
-                                'No valid product id(s) were provided for option with title: %s',
-                                $object->getTitle()
-                            )
-                        );
-                    }
-                }
+        $bundleOptionIds = $this->helper->getBundleOptionIds($option);
 
-                $object->setData(
-                    CustomOptions::FIELD_BUNDLE_OPTION_IDS_NAME,
-                    implode(
-                        ',',
-                        $bundleOptionIds
-                    )
+        foreach ($bundleOptionIds as $bundleOptionId) {
+            if (preg_match('/^\d+$/', $bundleOptionId) !== 1) {
+                throw new LocalizedException(
+                    __('No valid bundle option ID(s) were provided for the option with title: %1', $option->getTitle())
                 );
             }
         }
+
+        $option->setData(
+            Data::BUNDLE_OPTION_IDS,
+            count($bundleOptionIds) > 0 ? implode(',', $bundleOptionIds) : null
+        );
     }
 }
