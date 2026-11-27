@@ -19,11 +19,13 @@ use Magento\Catalog\Model\ResourceModel\Product\Option\Collection;
 use Magento\Framework\DataObject;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests converting the bundle options of custom options when they are loaded and saved.
  */
+#[AllowMockObjectsWithoutExpectations]
 class ObserversTest extends TestCase
 {
     /**

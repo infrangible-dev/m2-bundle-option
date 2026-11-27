@@ -16,11 +16,13 @@ use Magento\Bundle\Model\Product\Type as BundleType;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Configuration\Item\Option\OptionInterface;
 use Magento\Catalog\Model\Product\Option;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests passing the values of linked custom options to the products of bundle options in the cart.
  */
+#[AllowMockObjectsWithoutExpectations]
 class TypeTest extends TestCase
 {
     /** @var array<string, array<string, mixed>> the custom options added to the products by SKU */
