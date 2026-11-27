@@ -2,7 +2,7 @@
     "name": "infrangible/m2-bundle-option",
     "description": "Lets you link custom options of a bundle product to individual bundle options, so the shopper's choice is attached to the item selected in that bundle option.",
     "type": "magento2-module",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "license": "MIT",
     "keywords": [
         "Magento",

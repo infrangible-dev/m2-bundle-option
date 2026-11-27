@@ -70,7 +70,8 @@ class Collection
                 continue;
             }
 
-            $productOptions = $selectionProductIds[ (string)$option->getProductId() ] ?? [];
+            $productId = $option->getData('product_id');
+            $productOptions = is_scalar($productId) ? $selectionProductIds[ (string)$productId ] ?? [] : [];
 
             foreach ($this->helper->getBundleOptionIds($option) as $bundleOptionId) {
                 foreach ($productOptions[ $bundleOptionId ] ?? [] as $productId) {
