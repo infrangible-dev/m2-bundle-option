@@ -13,7 +13,6 @@ namespace Infrangible\BundleOption\Test\Unit\Plugin\Sales\Model\Order;
 use Infrangible\BundleOption\Plugin\Sales\Model\Order\ProductOption;
 use Magento\Catalog\Api\Data\CustomOptionInterface;
 use Magento\Catalog\Api\Data\ProductOptionExtensionFactory;
-use Magento\Catalog\Api\Data\ProductOptionExtensionInterface;
 use Magento\Catalog\Api\Data\ProductOptionInterface;
 use Magento\Catalog\Model\ProductOptionFactory;
 use Magento\Catalog\Model\ProductOptionProcessor;
@@ -51,17 +50,36 @@ class ProductOptionTest extends TestCase
     {
         $engraving = $this->createCustomOption(1);
         $note = $this->createCustomOption(2);
-        $saved = null;
-
-        $extensionAttributes = $this->createStub(ProductOptionExtensionInterface::class);
-        $extensionAttributes->method('getCustomOptions')->willReturn([$engraving, $note]);
-        $extensionAttributes->method('setCustomOptions')->willReturnCallback(
-            function (array $customOptions) use (&$saved, $extensionAttributes): ProductOptionExtensionInterface {
-                $saved = $customOptions;
-
-                return $extensionAttributes;
+        // the extension attributes are generated: the unit test bootstrap generates the interface without the
+        // attributes of the configuration, so a plain object stands in for them
+        $extensionAttributes = new class([$engraving, $note]) {
+            /**
+             * @param CustomOptionInterface[] $customOptions
+             */
+            public function __construct(public array $customOptions)
+            {
             }
-        );
+
+            /**
+             * @return CustomOptionInterface[]
+             */
+            public function getCustomOptions(): array
+            {
+                return $this->customOptions;
+            }
+
+            /**
+             * @param CustomOptionInterface[] $customOptions
+             *
+             * @return $this
+             */
+            public function setCustomOptions(array $customOptions): static
+            {
+                $this->customOptions = $customOptions;
+
+                return $this;
+            }
+        };
 
         $productOption = $this->createStub(ProductOptionInterface::class);
         $productOption->method('getExtensionAttributes')->willReturn($extensionAttributes);
@@ -84,6 +102,6 @@ class ProductOptionTest extends TestCase
             $this->createStub(ProductOptionProcessor::class)
         ))->afterAdd($this->createStub(OrderProductOption::class), null, $bundleItem);
 
-        $this->assertSame([$note], $saved);
+        $this->assertSame([$note], $extensionAttributes->customOptions);
     }
 }
